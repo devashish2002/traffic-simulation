@@ -68,7 +68,7 @@ def get_traffic_speed_data():
     # Iterate through each result
     for result in data.get('results', []):
         current_flow = result.get('currentFlow', {})
-        speed = current_flow.get('speed')
+        speed = current_flow.get('jamFactor')
         if speed is None:
             continue  # Skip if speed data is missing
         
@@ -90,7 +90,7 @@ def get_traffic_speed_data():
                 min(longitudes) >= NYC_LON_MIN and max(longitudes) <= NYC_LON_MAX):
                 
                 traffic_records.append({
-                    'speed': speed,
+                    'jamFactor': speed,
                     'latitudes': latitudes,
                     'longitudes': longitudes
                 })
@@ -144,7 +144,7 @@ def generate_citibike_map(citibike_data):
         color="busyness_ratio",
         size="busyness_ratio",
         color_continuous_scale="Viridis",
-        size_max=20,
+        size_max=15,
         zoom=11,
         height=800,
         title="CitiBike Stations - Busyness Heatmap (Docks/Bikes Ratio)"
@@ -160,22 +160,22 @@ def generate_citibike_map(citibike_data):
 # Function to generate Traffic Speed Map
 def generate_traffic_map(traffic_data):
     # Define speed bins and corresponding colors
-    speed_bins = [0, 10, 15, 20, 30, 40, 100]
-    speed_labels = ['0-10 mph', '10-15 mph', '15-20 mph', '20-30 mph', '30-40 mph', '>40 mph']
-    speed_colors = ['red', 'orange', 'yellow', 'green', 'blue']
+    speed_bins = [1, 2, 3, 4]#[0, 10, 15, 20, 30, 40, 100]
+    jam_labels = ['Min. congested', 'Mid congested', 'Max. congested']
+    speed_colors = ['green', 'orange', 'red']
     
     # Assign speed categories
-    traffic_data['speed_category'] = pd.cut(traffic_data['speed'], bins=speed_bins, labels=speed_labels, include_lowest=True)
+    traffic_data['jam_category'] = pd.cut(traffic_data['jamFactor'], bins=speed_bins, labels=jam_labels, include_lowest=True)
     
     # Create a mapping from speed category to color
-    speed_color_map = dict(zip(speed_labels, speed_colors))
+    speed_color_map = dict(zip(jam_labels, speed_colors))
     
     # Initialize Plotly map
     fig_traffic = go.Figure()
     
     # Iterate through each speed category and add a separate trace
-    for category in speed_labels:
-        category_data = traffic_data[traffic_data['speed_category'] == category]
+    for category in jam_labels:
+        category_data = traffic_data[traffic_data['jam_category'] == category]
         if category_data.empty:
             continue
         
@@ -237,12 +237,12 @@ if map_option == "CitiBike Busyness Heatmap":
     - **Higher Ratio:** More docks available relative to bikes (less busy for pickups, potentially busy for drop-offs).
     - **Lower Ratio:** More bikes available relative to docks (busier for pickups, less busy for drop-offs).
     """)
-elif map_option == "Traffic Speed Map":
-    st.markdown("""
-    **Traffic Speed Interpretation:**
-    - **Red Lines (0-20 mph):** Heavily congested areas with very slow traffic.
-    - **Orange Lines (21-40 mph):** Moderately congested areas.
-    - **Yellow Lines (41-60 mph):** Light traffic.
-    - **Green Lines (61-80 mph):** Free-flowing traffic.
-    - **Blue Lines (81-100 mph):** Very fast-moving traffic, typically highways or expressways.
-    """)
+# elif map_option == "Traffic Speed Map":
+#     st.markdown("""
+#     **Traffic Speed Interpretation:**
+#     - **Red Lines (0-10 mph):** Heavily congested areas with very slow traffic.
+#     - **Orange Lines (10-40 mph):** Moderately congested areas.
+#     - **Yellow Lines (41-60 mph):** Light traffic.
+#     - **Green Lines (61-80 mph):** Free-flowing traffic.
+#     - **Blue Lines (81-100 mph):** Very fast-moving traffic, typically highways or expressways.
+#     """)
