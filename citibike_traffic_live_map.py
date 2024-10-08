@@ -8,7 +8,7 @@ import json
 # Set page configuration
 st.set_page_config(page_title="CitiBike & Traffic Speed Maps", layout="wide")
 
-st.title("🗽 CitiBike Busyness & Traffic Speed Maps - New York City")
+st.title("🗽 CitiBike Activity & Traffic Speed Maps - New York City")
 
 # Define NYC geographic bounds
 NYC_LAT_MIN = 40.4774
@@ -136,7 +136,7 @@ def generate_citibike_map(citibike_data):
         hover_data={
             "available_bikes": True,
             "available_docks": True,
-            "busyness_ratio": True,
+            "busyness_ratio": False,
             "lat": False,
             "lon": False,
             "station_id": False
@@ -147,6 +147,7 @@ def generate_citibike_map(citibike_data):
         size_max=15,
         zoom=11,
         height=800,
+        width=1000,
         title="CitiBike Stations - Busyness Heatmap (Docks/Bikes Ratio)"
     )
     
@@ -195,6 +196,7 @@ def generate_traffic_map(traffic_data):
                 line=dict(color=speed_color_map[category], width=2),
                 showlegend=True,
                 name=f'Traffic Speed: {category}'
+
             )
         )
     
@@ -205,6 +207,10 @@ def generate_traffic_map(traffic_data):
         mapbox_center={"lat": 40.7128, "lon": -74.0060},  # Centered on NYC
         margin={"r":0,"t":50,"l":0,"b":0},
         title="Traffic Speed Map - New York City"
+    )
+    fig_traffic.update_layout(
+    height=800,  # Adjust the height as needed
+    width=1000   # Adjust the width as needed
     )
     
     return fig_traffic
@@ -220,18 +226,18 @@ fig_citibike = generate_citibike_map(get_citibike_data())
 # User selection for map display
 map_option = st.radio(
     "Select the map to display:",
-    ("CitiBike Busyness Heatmap", "Traffic Speed Map")
+    ("CitiBike Heatmap", "Traffic Speed Map")
 )
 
 
 # Display the selected map
-if map_option == "CitiBike Busyness Heatmap":
+if map_option == "CitiBike Heatmap":
     st.plotly_chart(fig_citibike, use_container_width=True)
 elif map_option == "Traffic Speed Map":
     st.plotly_chart(generate_traffic_map(get_traffic_speed_data()), use_container_width=True)
 
 # Optional: Add a legend explanation based on the selected map
-if map_option == "CitiBike Busyness Heatmap":
+if map_option == "CitiBike Heatmap":
     st.markdown("""
     **Busyness Ratio Interpretation:**
     - **Higher Ratio:** More docks available relative to bikes (less busy for pickups, potentially busy for drop-offs).
