@@ -8,5 +8,5 @@ plotly
 rtree
 shapely
 requests
-osmnx=1.9.4
+osmnx==1.9.4
 networkx
