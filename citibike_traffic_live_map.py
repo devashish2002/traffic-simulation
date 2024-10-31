@@ -12,6 +12,7 @@ from shapely.geometry import LineString, Point
 import folium
 from folium import plugins
 from streamlit_folium import st_folium
+import toml
 
 # Set page configuration
 st.set_page_config(page_title="CitiBike & Traffic Speed Maps", layout="wide")
@@ -25,7 +26,9 @@ NYC_LON_MIN = -74.2591
 NYC_LON_MAX = -73.7004
 
 # HERE Maps API Key
-apiKey = 'zLeOISowE3l_vz1aIVhm4wSC9U-knJ_9Cw5ZkxTDXCw'
+# Load configuration from config.toml
+config = toml.load("config.toml")
+apiKey = config["api"]["here_maps_key"]
 
 # Function to fetch CitiBike data
 @st.cache_data(ttl=60)

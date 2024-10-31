@@ -11,3 +11,4 @@ requests
 osmnx==1.9.4
 networkx
 scikit-learn
+toml
